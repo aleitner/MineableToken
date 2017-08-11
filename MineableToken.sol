@@ -1,7 +1,7 @@
 pragma solidity ^0.4.11;
 
-import 'zeppelin/contracts/token/ERC20Basic.sol';
-import 'zeppelin/contracts/ownership/Ownable.sol';
+import 'zeppelin-solidity/contracts/token/ERC20Basic.sol';
+import 'zeppelin-solidity/contracts/ownership/Ownable.sol';
 
 /* Centralized Administrator */
 contract MineableToken is Ownable {
