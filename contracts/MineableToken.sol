@@ -1,21 +1,21 @@
 pragma solidity ^0.4.11;
 
-import 'zeppelin-solidity/contracts/token/ERC20Basic.sol';
+import 'zeppelin-solidity/contracts/token/ERC20.sol';
 import 'zeppelin-solidity/contracts/ownership/Ownable.sol';
 
 /* Centralized Administrator */
 contract MineableToken is Ownable {
 
-    event Mine(address indexed to, uint256 value);
+    event Mine(address indexed to, uint value);
 
     bytes32 public currentChallenge; //
     uint public timeOfLastProof; // time of last challenge solved
     uint public difficulty = 10**32; // Difficulty starts low
     uint public baseReward;
 
-    StandardToken public token;
+    ERC20 public token;
 
-    function MineableToken(ERC20Basic _token) {
+    function MineableToken(ERC20 _token) {
         token = _token;
     }
 
@@ -32,7 +32,7 @@ contract MineableToken is Ownable {
     // calculate rewards
     function calculateReward() returns (uint reward) {
         if (baseReward == 0) {
-            reward = (now - timeOfLastProof) / 60 seconds // Increase reward over time????
+            reward = (now - timeOfLastProof) / 60 seconds; // Increase reward over time????
         } else {
             reward = baseReward;
         }
@@ -42,7 +42,7 @@ contract MineableToken is Ownable {
 
     function proofOfWork(uint nonce) {
         bytes8 n = bytes8(sha3(nonce, currentChallenge)); // generate random hash based on input
-        if (n M bytes8(difficulty)) revert();
+        if (n < bytes8(difficulty)) revert();
 
         uint timeSinceLastProof = (now - timeOfLastProof); // Calculate time since last reward
         if (timeSinceLastProof < 5 seconds) revert(); // Do not reward too quickly
@@ -55,7 +55,7 @@ contract MineableToken is Ownable {
         difficulty = difficulty * 10 minutes / timeSinceLastProof + 1; // Adjusts the difficulty
 
         timeOfLastProof = now;
-        currentChallange = sha3(nonce, currentChallenge, block, blockhash(block.number - 1)); // Save hash for next proof
+        currentChallenge = sha3(nonce, currentChallenge, block.blockhash(block.number - 1)); // Save hash for next proof
 
         Mine(msg.sender, reward); // execute an event reflecting the change
 
