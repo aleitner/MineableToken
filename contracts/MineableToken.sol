@@ -1,7 +1,7 @@
 pragma solidity ^0.4.11;
 
-import 'zeppelin-solidity/contracts/token/ERC20.sol';
-import 'zeppelin-solidity/contracts/ownership/Ownable.sol';
+import './Ownable.sol';
+import './ERC20.sol';
 
 /**
  * @title Mineable Token
@@ -14,8 +14,8 @@ contract MineableToken is Ownable {
 
     bytes32 public currentChallenge;
     uint public timeOfLastProof; // time of last challenge solved
-    uint public difficulty = 10**32; // Difficulty starts low
-    uint public baseReward = 1;
+    uint256 public difficulty = 10**32; // Difficulty starts low
+    uint256 public baseReward = 1;
     bool public incrementalRewards = true;
     ERC20 public token;
 
@@ -29,17 +29,17 @@ contract MineableToken is Ownable {
 
     /**
      * @dev Change the difficulty
-     * @param _difficulty uint difficulty to be set
+     * @param _difficulty uint256 difficulty to be set
      */
-    function setDifficulty(uint _difficulty) onlyOwner {
+    function setDifficulty(uint256 _difficulty) onlyOwner {
         difficulty = _difficulty;
     }
 
     /**
      * @dev Change the reward
-     * @param _baseReward uint base reward given when not incremental
+     * @param _baseReward uint256 base reward given when not incremental
      */
-    function setBaseReward(uint _baseReward) onlyOwner {
+    function setBaseReward(uint256 _baseReward) onlyOwner {
         baseReward = _baseReward;
     }
 
@@ -53,9 +53,9 @@ contract MineableToken is Ownable {
 
     /**
      * @dev Calculate the reward
-     * @return uint Returns the amount to reward
+     * @return uint256 Returns the amount to reward
      */
-    function calculateReward() returns (uint) {
+    function calculateReward() returns (uint256) {
 
         /* Check if we are incrementing reward */
         if (incrementalRewards == true) {
@@ -70,17 +70,17 @@ contract MineableToken is Ownable {
      * @param nonce uint
      * @return uint The amount rewarded
      */
-    function proofOfWork(uint nonce) returns (uint) {
+    function proofOfWork(uint nonce) returns (uint256) {
         bytes8 n = bytes8(sha3(nonce, currentChallenge)); // generate random hash based on input
         if (n < bytes8(difficulty)) revert();
 
         uint timeSinceLastProof = (now - timeOfLastProof); // Calculate time since last reward
         if (timeSinceLastProof < 5 seconds) revert(); // Do not reward too quickly
 
-        uint reward = calculateReward();
+        uint256 reward = calculateReward();
 
         if (token.balanceOf(address(this)) < reward) revert(); // Make sure we have enough to send
-        token.transfer(this, msg.sender, reward); // reward to winner grows over time
+        token.transferFrom(this, msg.sender, reward); // reward to winner grows over time
 
         difficulty = difficulty * 10 minutes / timeSinceLastProof + 1; // Adjusts the difficulty
 
