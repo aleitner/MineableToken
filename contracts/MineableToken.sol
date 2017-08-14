@@ -11,7 +11,8 @@ contract MineableToken is Ownable {
     bytes32 public currentChallenge; //
     uint public timeOfLastProof; // time of last challenge solved
     uint public difficulty = 10**32; // Difficulty starts low
-    uint public baseReward;
+    uint public baseReward = 1;
+    bool public incrementalRewards = true;
 
     ERC20 public token;
 
@@ -24,14 +25,19 @@ contract MineableToken is Ownable {
         difficulty = newDifficulty;
     }
 
-    // Change the difficulty
+    // Change the reward
     function setBaseReward(uint newReward) onlyOwner {
         baseReward = newReward;
     }
 
+    // Change if the reward should increment or not
+    function isIncremental(bool shouldRewardIncrement) onlyOwner {
+        incrementalRewards = shouldRewardIncrement;
+    }
+
     // calculate rewards
     function calculateReward() returns (uint reward) {
-        if (baseReward == 0) {
+        if (incrementalRewards == true) {
             reward = (now - timeOfLastProof) / 60 seconds; // Increase reward over time????
         } else {
             reward = baseReward;
