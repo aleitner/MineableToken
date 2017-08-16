@@ -18,6 +18,7 @@ contract MineableToken is Ownable {
     uint256 public baseReward = 1;
     bool public incrementalRewards = true;
     ERC20 public token;
+    uint maxRewardPercent = 50;
 
     /**
      * @dev Constructor that sets the passed value as the token to be mineable.
@@ -33,6 +34,15 @@ contract MineableToken is Ownable {
      */
     function setDifficulty(uint256 _difficulty) onlyOwner {
         difficulty = _difficulty;
+    }
+
+    /**
+     * @dev Change the maximum percent of the total supply that can be rewarded
+     * @param _percent uint Maximum percent of the total supply to be rewarded
+     */
+    function setMaxRewardPercentOfTotal(uint _percent) onlyOwner {
+        if (_percent < 1 || _percent > 100) revert();
+        maxRewardPercent = _percent;
     }
 
     /**
@@ -77,7 +87,9 @@ contract MineableToken is Ownable {
 
         /* Check if we are incrementing reward */
         if (incrementalRewards == true) {
+            uint maxReward = (totalSupply * maxRewardPercent/100);
             reward = (totalSupply * (now - timeOfLastProof) / 1 years);
+            if (reward > maxReward) reward = maxReward; // Make sure reward does not exceed maximum percent
         } else {
             reward = baseReward;
         }
