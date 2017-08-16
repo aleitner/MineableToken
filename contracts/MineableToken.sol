@@ -14,7 +14,7 @@ contract MineableToken is Ownable {
 
     bytes32 public currentChallenge;
     uint public timeOfLastProof; // time of last challenge solved
-    uint256 public difficulty = 10**32; // Difficulty starts low
+    uint256 public difficulty = 2**256 - 1; // Difficulty starts low
     uint256 public baseReward = 1;
     bool public incrementalRewards = true;
     ERC20 public token;
@@ -52,17 +52,39 @@ contract MineableToken is Ownable {
     }
 
     /**
+     * @dev Get the balance of the contract
+     * @return returns the number of tokens associated with the contract
+     */
+    function getTokenBalance() returns (uint256) {
+        return token.balanceOf(address(this));
+    }
+
+    /**
+     * @dev Get the balance of the contract
+     * @param _to address Address being transfered to
+     * @param _amount uint256 Amount of tokens being transfered
+     */
+    function transfer(address _to, uint256 _amount) onlyOwner {
+        token.transferFrom(this, _to, _amount);
+    }
+
+    /**
      * @dev Calculate the reward
      * @return uint256 Returns the amount to reward
      */
-    function calculateReward() returns (uint256) {
+    function calculateReward() returns (uint256 reward) {
+        uint256 totalSupply = getTokenBalance();
 
         /* Check if we are incrementing reward */
         if (incrementalRewards == true) {
-            return (now - timeOfLastProof) / 60 seconds; // Increase reward over time
+            reward = (totalSupply * (now - timeOfLastProof) / 1 years);
+        } else {
+            reward = baseReward;
         }
 
-        return baseReward; // just return the base reward
+        if (reward > totalSupply) return totalSupply;
+
+        return reward;
     }
 
     /**
@@ -71,15 +93,14 @@ contract MineableToken is Ownable {
      * @return uint The amount rewarded
      */
     function proofOfWork(uint nonce) returns (uint256) {
-        bytes8 n = bytes8(sha3(nonce, currentChallenge)); // generate random hash based on input
-        if (n < bytes8(difficulty)) revert();
+        bytes32 n = sha3(nonce, currentChallenge); // generate random hash based on input
+        if (n > bytes32(difficulty)) revert();
 
         uint timeSinceLastProof = (now - timeOfLastProof); // Calculate time since last reward
         if (timeSinceLastProof < 5 seconds) revert(); // Do not reward too quickly
 
         uint256 reward = calculateReward();
 
-        if (token.balanceOf(address(this)) < reward) revert(); // Make sure we have enough to send
         token.transferFrom(this, msg.sender, reward); // reward to winner grows over time
 
         difficulty = difficulty * 10 minutes / timeSinceLastProof + 1; // Adjusts the difficulty
