@@ -70,12 +70,20 @@ contract MineableToken is Ownable {
     }
 
     /**
-     * @dev Get the balance of the contract
+     * @dev Change the token to be mined
+     * @param _newToken ERC20 ERC20-compatible token
+     */
+    function changeToken(ERC20 _newToken) {
+        token = _newToken;
+    }
+
+    /**
+     * @dev Transfer tokens out of the contract
      * @param _to address Address being transfered to
      * @param _amount uint256 Amount of tokens being transfered
      */
     function transfer(address _to, uint256 _amount) onlyOwner {
-        token.transferFrom(this, _to, _amount);
+        token.transfer(_to, _amount);
     }
 
     /**
@@ -104,16 +112,16 @@ contract MineableToken is Ownable {
      * @param nonce uint
      * @return uint The amount rewarded
      */
-    function proofOfWork(uint nonce) returns (uint256) {
+    function proofOfWork(uint nonce) returns (uint256 reward) {
         bytes32 n = sha3(nonce, currentChallenge); // generate random hash based on input
         if (n > bytes32(difficulty)) revert();
 
         uint timeSinceLastProof = (now - timeOfLastProof); // Calculate time since last reward
         if (timeSinceLastProof < 5 seconds) revert(); // Do not reward too quickly
 
-        uint256 reward = calculateReward();
+        reward = calculateReward();
 
-        token.transferFrom(this, msg.sender, reward); // reward to winner grows over time
+        token.transfer(msg.sender, reward); // reward to winner grows over time
 
         difficulty = difficulty * 10 minutes / timeSinceLastProof + 1; // Adjusts the difficulty
 
