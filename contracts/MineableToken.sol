@@ -26,6 +26,7 @@ contract MineableToken is Ownable {
      */
     function MineableToken(ERC20 _token) {
         token = _token;
+        timeOfLastProof = now;
     }
 
     /**
