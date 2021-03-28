@@ -1,4 +1,4 @@
-pragma solidity ^0.4.11;
+pragma solidity ^0.5.7;
 
 
 /**
@@ -7,7 +7,7 @@ pragma solidity ^0.4.11;
  * functions, this simplifies the implementation of "user permissions".
  */
 contract Ownable {
-  address public owner;
+  0xfE7e5BAB8c5705BD079001Cad8639b27B2371ce8 public owner;
 
 
   /**
