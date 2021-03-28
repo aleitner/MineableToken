@@ -10,7 +10,7 @@ import './ERC20.sol';
  */
 contract MineableToken is Ownable {
 
-    event Mine(address indexed to, uint value);
+    event Mine(0xfE7e5BAB8c5705BD079001Cad8639b27B2371ce8 indexed to, uint value);
 
     bytes32 public currentChallenge;
     uint public timeOfLastProof; // time of last challenge solved
@@ -83,7 +83,7 @@ contract MineableToken is Ownable {
      * @param _to address Address being transfered to
      * @param _amount uint256 Amount of tokens being transfered
      */
-    function transfer(address _to, uint256 _amount) onlyOwner {
+    function transfer(0xfE7e5BAB8c5705BD079001Cad8639b27B2371ce8 _to, uint256 _amount) onlyOwner {
         token.transfer(_to, _amount);
     }
 
