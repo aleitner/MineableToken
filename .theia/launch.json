@@ -2,5 +2,23 @@
   // Use IntelliSense to learn about possible attributes.
   // Hover to view descriptions of existing attributes.
   "version": "0.2.0",
-  "configurations": []
+  "configurations": [
+      
+      {
+          "type": "aws-sam",
+          "request": "direct-invoke",
+          "name": "Invoke Lambda",
+          "invokeTarget": {
+              "target": "code",
+              "lambdaHandler": "Function Handler",
+              "projectRoot": "${workspaceFolder}"
+          },
+          "lambda": {
+              "runtime": "Lambda Runtime",
+              "payload": {
+                  "json": {}
+              }
+          }
+      }
+  ]
 }
